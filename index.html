@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Number Picker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #result, #pickedNumbers, #availableNumbers {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Random Number Picker</h2>
+    <label for="start">Start number:</label>
+    <input type="number" id="start" value="1"><br>
+    <label for="end">End number:</label>
+    <input type="number" id="end" value="10"><br>
+    <label for="quantity">Number of numbers to pick:</label>
+    <input type="number" id="quantity" min="1" value="1"><br>
+
+    <button onclick="pickRandomNumbers()">Pick Random Number(s)</button>
+    <button onclick="resetNumbers()">Reset</button><br><br>
+
+    <label for="removeNumber">Enter number to remove:</label>
+    <input type="number" id="removeNumber">
+    <button onclick="removeNumber()">Remove Number</button>
+
+    <div id="result"></div>
+    <div id="pickedNumbers"></div>
+    <div id="availableNumbers"></div>
+    <p id="status"></p>
+
+    <script>
+        let numbers = [];
+        let pickedNumbers = [];
+
+        function updateAvailableNumbers() {
+            const availableNumbersDiv = document.getElementById('availableNumbers');
+            availableNumbersDiv.innerHTML = `<p>Available numbers: ${numbers.join(', ')}</p>`;
+        }
+
+        function pickRandomNumbers() {
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const start = parseInt(document.getElementById('start').value);
+            const end = parseInt(document.getElementById('end').value);
+            const resultDiv = document.getElementById('result');
+            const pickedNumbersDiv = document.getElementById('pickedNumbers');
+            const statusSpan = document.getElementById('status');
+
+            if (isNaN(start) || isNaN(end) || start > end) {
+                resultDiv.textContent = 'Please enter valid start and end numbers.';
+                return;
+            }
+
+            if (numbers.length === 0) {
+                numbers = Array.from({ length: end - start + 1 }, (v, k) => k + start);
+                pickedNumbers = [];
+                statusSpan.textContent = '';
+            }
+
+            if (numbers.length === 0) {
+                resultDiv.textContent = '';
+                statusSpan.textContent = '已選取完畢';
+                return;
+            }
+
+            if (quantity > numbers.length) {
+                resultDiv.textContent = 'Not enough numbers available to pick.';
+                return;
+            }
+
+            const picked = [];
+            for (let i = 0; i < quantity; i++) {
+                const randomIndex = Math.floor(Math.random() * numbers.length);
+                const pickedNumber = numbers.splice(randomIndex, 1)[0];
+                pickedNumbers.push(pickedNumber);
+                picked.push(pickedNumber);
+            }
+
+            resultDiv.textContent = `Picked number(s): ${picked.join(', ')}`;
+            pickedNumbersDiv.innerHTML = `<p>Picked numbers: ${pickedNumbers.join(', ')}</p>`;
+            updateAvailableNumbers();
+
+            if (numbers.length === 0) {
+                statusSpan.textContent = '已選取完畢';
+            }
+        }
+
+        function resetNumbers() {
+            numbers = [];
+            pickedNumbers = [];
+            document.getElementById('result').textContent = '';
+            document.getElementById('pickedNumbers').innerHTML = '';
+            document.getElementById('availableNumbers').innerHTML = '';
+            document.getElementById('status').textContent = '';
+        }
+
+        function removeNumber() {
+            const numberToRemove = parseInt(document.getElementById('removeNumber').value);
+            const index = numbers.indexOf(numberToRemove);
+            if (index !== -1) {
+                numbers.splice(index, 1);
+                updateAvailableNumbers();
+                document.getElementById('removeNumber').value = '';
+            } else {
+                alert('Number not found in the list.');
+            }
+        }
+    </script>
+</body>
+</html>
